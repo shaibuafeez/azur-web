@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azurcryptus | Next-Gen Memecoin</title>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'clash': ['Clash Display', 'sans-serif'],
+                        'cabinet': ['Cabinet Grotesk', 'sans-serif'],
+                        'righteous': ['Righteous', 'cursive'],
+                        'marker': ['Permanent Marker', 'cursive'],
+                        'vinyl': ['Rubik Vinyl', 'cursive'],
+                        'pixel': ['Press Start 2P', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts -->
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@200,400,700,500,600,300&f[]=cabinet-grotesk@800,500,700,400,300,600&display=swap" rel="stylesheet">
+    <!-- Fun Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Permanent+Marker&family=Rubik+Vinyl&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Animation Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.3/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-white text-black overflow-x-hidden">
+    <!-- Include Navigation -->
+    <div id="nav-container"></div>
+
+    <!-- Include Hero Section -->
+    <div id="hero-container"></div>
+    
+    <!-- Section Divider -->
+    <div class="section-divider"></div>
+
+    <!-- Include About Section -->
+    <div id="about-container"></div>
+
+    <!-- Include Gallery Section -->
+    <div id="gallery-container"></div>
+
+    <!-- Include Roadmap Section -->
+    <div id="roadmap-container"></div>
+
+    <!-- Include Footer Section -->
+    <div id="footer-container"></div>
+
+    <!-- Animation Library Initialization -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // Load Components
+        async function loadComponents() {
+            try {
+                await Promise.all([
+                    loadComponent('nav-container', 'components/nav.html'),
+                    loadComponent('hero-container', 'components/hero.html'),
+                    loadComponent('about-container', 'components/about.html'),
+                    loadComponent('gallery-container', 'components/gallery.html'),
+                    loadComponent('roadmap-container', 'components/roadmap.html'),
+                    loadComponent('footer-container', 'components/footer.html')
+                ]);
+                
+                // Initialize components after loading
+                initializeMobileMenu();
+                initializeGallery();
+                initializeCopyAddress();
+            } catch (error) {
+                console.error('Error loading components:', error);
+            }
+        }
+
+        // Initialize copy address functionality
+        function initializeCopyAddress() {
+            const copyBtn = document.querySelector('.copy-address-btn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', async function() {
+                    const addressInput = document.querySelector('.address-input');
+                    const text = addressInput.value;
+                    
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        const copyText = this.querySelector('.copy-text');
+                        const originalText = copyText.textContent;
+                        
+                        copyText.textContent = 'Copied!';
+                        this.classList.add('copied');
+                        
+                        setTimeout(() => {
+                            copyText.textContent = originalText;
+                            this.classList.remove('copied');
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy:', err);
+                        // Fallback for browsers that don't support clipboard API
+                        addressInput.select();
+                        document.execCommand('copy');
+                    }
+                });
+            }
+        }
+
+        async function loadComponent(containerId, componentPath) {
+            try {
+                const response = await fetch(componentPath);
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+            } catch (error) {
+                console.error(`Error loading ${componentPath}:`, error);
+            }
+        }
+
+        function initializeMobileMenu() {
+            const menuButton = document.querySelector('.mobile-menu-button');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            if (menuButton && mobileMenu) {
+                menuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        }
+
+        function initializeGallery() {
+            const gallery = {
+                currentFilter: 'all',
+                itemsPerPage: 6,
+                currentPage: 1,
+                
+                init() {
+                    this.items = document.querySelectorAll('.gallery-item');
+                    this.filterButtons = document.querySelectorAll('.filter-btn');
+                    this.setupEventListeners();
+                    this.updateVisibleItems();
+                },
+
+                setupEventListeners() {
+                    this.filterButtons.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            this.filterButtons.forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            this.currentFilter = btn.dataset.category;
+                            this.currentPage = 1;
+                            this.updateVisibleItems();
+                        });
+                    });
+                },
+
+                updateVisibleItems() {
+                    this.items.forEach(item => {
+                        const category = item.dataset.category;
+                        if (this.currentFilter === 'all' || category === this.currentFilter) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                }
+            };
+
+            gallery.init();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComponents();
+        });
+    </script>
+</body>
+</html>
